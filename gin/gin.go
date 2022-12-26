@@ -16,19 +16,12 @@ const (
 	HTTPMethodDELETE = "DELETE"
 )
 
-var HeaderJson = &Header{Key: "Content-Type", Value: "application/json;charset=UTF-8"}
-
-type Header struct {
-	Key   string
-	Value string
-}
-
-type HeaderSet []*Header
+var HeaderJson = map[string]string{"Content-Type": "application/json;charset=UTF-8"}
 
 type Request struct {
 	R      *gin.Engine
 	Url    string
-	Herder HeaderSet
+	Herder map[string]string
 	Method string
 	Reader io.Reader
 }
@@ -45,8 +38,8 @@ func Req(request Request) (*Response, string, error) {
 		return &Response{}, "", err
 	}
 	
-	for _, h := range request.Herder {
-		req.Header.Set(h.Key, h.Value)
+	for k, v := range request.Herder {
+		req.Header.Set(k, v)
 	}
 	
 	rec := httptest.NewRecorder()
