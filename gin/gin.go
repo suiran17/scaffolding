@@ -16,14 +16,12 @@ const (
 	HTTPMethodDELETE = "DELETE"
 )
 
-var HeaderJson = map[string]string{"Content-Type": "application/json;charset=UTF-8"}
-
 type Request struct {
 	R      *gin.Engine
 	Url    string
 	Herder map[string]string
 	Method string
-	Reader io.Reader
+	Body   io.Reader
 }
 
 type Response struct {
@@ -32,19 +30,48 @@ type Response struct {
 	Response   *http.Response
 }
 
-func Req(request Request) (*Response, string, error) {
-	req, err := http.NewRequest(request.Method, request.Url, request.Reader)
+func New() *Request {
+	return &Request{}
+}
+
+func (r *Request) SetEngine(e *gin.Engine) *Request {
+	r.R = e
+	return r
+}
+
+func (r *Request) SetUrl(url string) *Request {
+	r.Url = url
+	return r
+}
+
+func (r *Request) SetHeader(header map[string]string) *Request {
+	r.Herder = header
+	return r
+}
+
+func (r *Request) SeMethod(method string) *Request {
+	r.Method = method
+	return r
+}
+
+func (r *Request) SetBody(body io.Reader) *Request {
+	r.Body = body
+	return r
+}
+
+func (r *Request) Req() (*Response, string, error) {
+	req, err := http.NewRequest(r.Method, r.Url, r.Body)
 	if err != nil {
 		return &Response{}, "", err
 	}
 	
-	for k, v := range request.Herder {
+	for k, v := range r.Herder {
 		req.Header.Set(k, v)
 	}
 	
 	rec := httptest.NewRecorder()
 	
-	request.R.ServeHTTP(rec, req)
+	r.R.ServeHTTP(rec, req)
 	
 	response := rec.Result()
 	

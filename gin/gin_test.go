@@ -1,12 +1,12 @@
 package gin
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	// "net/url"
 	
@@ -64,19 +64,17 @@ func TestGinExample(t *testing.T) {
 		"b": {"2"},
 	}
 	
-	request := Request{
-		R:      setupRouter(),
-		Url:    "/v1/test",
-		Herder: header,
-		Method: HTTPMethodPOST,
-		Reader: bytes.NewBufferString(data.Encode()),
-	}
+	resp, stringBody, err := New().
+		SetEngine(setupRouter()).
+		SetUrl("/v1/test").
+		SetHeader(header).
+		SeMethod(HTTPMethodPOST).
+		SetBody(strings.NewReader(data.Encode())).
+		Req()
 	
-	resp, stringBody, err := Req(request)
 	if err != nil {
 		log.Println("Req err: ", err)
 	}
-	defer resp.Response.Body.Close()
 	
 	fmt.Println(resp.StatusCode, string(resp.Body), resp.Response, stringBody)
 	
