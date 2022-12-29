@@ -64,14 +64,14 @@ func TestGinExample(t *testing.T) {
 		"b": {"2"},
 	}
 	
-	resp, stringBody, err := New().
-		SetEngine(setupRouter()).
-		SetUrl("/v1/test").
-		SetHeader(header).
-		SeMethod(HTTPMethodPOST).
-		SetBody(strings.NewReader(data.Encode())).
-		Req()
-	
+	r := &Request{
+		R:      setupRouter(),
+		Url:    "/v1/test",
+		Herder: header,
+		Method: HTTPMethodPOST,
+		Body:   strings.NewReader(data.Encode()),
+	}
+	resp, stringBody, err := Req(r)
 	if err != nil {
 		log.Println("Req err: ", err)
 	}

@@ -30,29 +30,19 @@ type Response struct {
 	Response   *http.Response
 }
 
-func New() *Request {
-	return &Request{}
-}
-
-func (r *Request) SetEngine(e *gin.Engine) *Request            { r.R = e; return r }
-func (r *Request) SetUrl(url string) *Request                  { r.Url = url; return r }
-func (r *Request) SetHeader(header map[string]string) *Request { r.Herder = header; return r }
-func (r *Request) SeMethod(method string) *Request             { r.Method = method; return r }
-func (r *Request) SetBody(body io.Reader) *Request             { r.Body = body; return r }
-
-func (r *Request) Req() (*Response, string, error) {
-	req, err := http.NewRequest(r.Method, r.Url, r.Body)
+func Req(request *Request) (*Response, string, error) {
+	req, err := http.NewRequest(request.Method, request.Url, request.Body)
 	if err != nil {
 		return &Response{}, "", err
 	}
 	
-	for k, v := range r.Herder {
+	for k, v := range request.Herder {
 		req.Header.Set(k, v)
 	}
 	
 	rec := httptest.NewRecorder()
 	
-	r.R.ServeHTTP(rec, req)
+	request.R.ServeHTTP(rec, req)
 	
 	response := rec.Result()
 	
